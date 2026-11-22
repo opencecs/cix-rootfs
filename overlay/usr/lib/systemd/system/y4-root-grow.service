@@ -1,0 +1,22 @@
+[Unit]
+Description=Prepare the full Debian root filesystem before normal startup
+Documentation=man:resize2fs(8)
+DefaultDependencies=no
+Requires=systemd-remount-fs.service
+After=systemd-remount-fs.service local-fs.target
+Before=sysinit.target
+Conflicts=shutdown.target
+Before=shutdown.target
+OnFailure=emergency.target
+OnFailureJobMode=isolate
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/y4-root-grow
+RemainAfterExit=yes
+TimeoutStartSec=10min
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+RequiredBy=sysinit.target

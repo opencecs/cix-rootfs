@@ -1,0 +1,7 @@
+{
+    "file_format_version": "1.0.0",
+    "ICD": {
+        "library_path": "/opt/cixgpu-pro/lib/libmali.so.0",
+        "api_version": "1.4.305"
+    }
+}

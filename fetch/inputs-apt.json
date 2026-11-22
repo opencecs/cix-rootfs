@@ -1,0 +1,205 @@
+{
+  "schema": 1,
+  "layer": "rootfs",
+  "suite": "debian bookworm",
+  "sources": [
+    "https://mirrors.ustc.edu.cn/debian bookworm main contrib non-free non-free-firmware",
+    "https://mirrors.ustc.edu.cn/debian-security bookworm-security main contrib non-free non-free-firmware"
+  ],
+  "integration": "scripts/apt_upgrade.py installs these after the base tarball extraction; the Debian base tarball already carries ssh, docker, containerd and the standard system packages",
+  "packages": [
+    {
+      "name": "libblockdev-crypto2",
+      "purpose": "UDisks encrypted volume support"
+    },
+    {
+      "name": "libblockdev-mdraid2",
+      "purpose": "UDisks Linux software RAID support"
+    },
+    {
+      "name": "rtkit",
+      "purpose": "Desktop portal and PipeWire realtime scheduling service"
+    },
+    {
+      "name": "btop",
+      "purpose": "system monitor shipped in the image"
+    },
+    {
+      "name": "htop",
+      "purpose": "system monitor shipped in the image"
+    },
+    {
+      "name": "ffmpeg",
+      "purpose": "VPU h264_v4l2m2m userspace encoder/decoder"
+    },
+    {
+      "name": "chromium",
+      "version": "156.0.8078.79-1~deb12u1",
+      "purpose": "Chromium 156 V4L2 CAPTURE format fix; paired browser package, validated separately from GPU compositing",
+      "arch": "arm64",
+      "deb": {
+        "url": "https://mirrors.ustc.edu.cn/debian-security/pool/updates/main/c/chromium/chromium_156.0.8078.79-1~deb12u1_arm64.deb",
+        "urls": [
+          "https://security.debian.org/debian-security/pool/updates/main/c/chromium/chromium_156.0.8078.79-1~deb12u1_arm64.deb"
+        ],
+        "sha256": "ef74b82730d487ef3b3232e6e5c20793ddc7174e3e9d240b58032584c2749adf",
+        "bytes": 71028060
+      }
+    },
+    {
+      "name": "chromium-l10n",
+      "version": "156.0.8078.79-1~deb12u1",
+      "arch": "all",
+      "purpose": "Chromium interface translations, locked to the shipped browser version",
+      "deb": {
+        "url": "https://mirrors.ustc.edu.cn/debian-security/pool/updates/main/c/chromium/chromium-l10n_156.0.8078.79-1~deb12u1_all.deb",
+        "urls": [
+          "https://security.debian.org/debian-security/pool/updates/main/c/chromium/chromium-l10n_156.0.8078.79-1~deb12u1_all.deb"
+        ],
+        "sha256": "7566e61412be9d292935be7a3b0815a91b857cce1641ac8c22010a63a3b7271d",
+        "bytes": 8902456
+      }
+    },
+    {
+      "name": "fcitx5",
+      "purpose": "Shared desktop input method framework"
+    },
+    {
+      "name": "fcitx5-pinyin",
+      "purpose": "Simplified Chinese Pinyin input engine"
+    },
+    {
+      "name": "fcitx5-frontend-gtk3",
+      "purpose": "Connect the Chromium XWayland GTK 3 IM context to Fcitx"
+    },
+    {
+      "name": "gnome-shell-extension-desktop-icons-ng",
+      "version": "46+really47.0.2-2",
+      "purpose": "desktop icons for the preinstalled apps; enabled per session by /usr/local/sbin/y4-desktop-setup (autostart) alongside the vendor default extensions"
+    },
+    {
+      "name": "docker-ce",
+      "version": "5:27.3.1-1~debian.12~bookworm",
+      "purpose": "container runtime, version-managed via the USTC docker-ce mirror (matches the base-freeze provenance)"
+    },
+    {
+      "name": "docker-ce-cli",
+      "version": "5:27.3.1-1~debian.12~bookworm",
+      "purpose": "container runtime, version-managed via the USTC docker-ce mirror (matches the base-freeze provenance)"
+    },
+    {
+      "name": "containerd.io",
+      "version": "1.7.22-1",
+      "purpose": "container runtime, version-managed via the USTC docker-ce mirror (matches the base-freeze provenance)"
+    },
+    {
+      "name": "docker-buildx-plugin",
+      "version": "0.17.1-1~debian.12~bookworm",
+      "purpose": "container runtime, version-managed via the USTC docker-ce mirror (matches the base-freeze provenance)"
+    },
+    {
+      "name": "docker-compose-plugin",
+      "version": "2.29.7-1~debian.12~bookworm",
+      "purpose": "container runtime, version-managed via the USTC docker-ce mirror (matches the base-freeze provenance)"
+    },
+    {
+      "name": "gstreamer1.0-plugins-bad",
+      "purpose": "desktop media pipeline \u2014 totem playback formats and gst-launch codec debugging"
+    },
+    {
+      "name": "gstreamer1.0-tools",
+      "purpose": "desktop media pipeline \u2014 totem playback formats and gst-launch codec debugging"
+    },
+    {
+      "name": "adb",
+      "version": "1:29.0.6-28",
+      "arch": "arm64",
+      "purpose": "ARM64 Android Debug Bridge for QtScrcpy",
+      "deb": {
+        "url": "https://mirrors.ustc.edu.cn/debian/pool/main/a/android-platform-tools/adb_29.0.6-28_arm64.deb",
+        "urls": [
+          "https://deb.debian.org/debian/pool/main/a/android-platform-tools/adb_29.0.6-28_arm64.deb"
+        ],
+        "sha256": "878e7c045cc921acefb7634fda4d6042eec5c7a69b7fb62cb89d23979030daf1",
+        "bytes": 174752
+      }
+    },
+    {
+      "name": "android-sdk-platform-tools-common",
+      "version": "28.0.2+9",
+      "arch": "all",
+      "purpose": "Debian USB udev rules for non-root Android device access",
+      "deb": {
+        "url": "https://mirrors.ustc.edu.cn/debian/pool/main/a/android-sdk-meta/android-sdk-platform-tools-common_28.0.2+9_all.deb",
+        "urls": [
+          "https://deb.debian.org/debian/pool/main/a/android-sdk-meta/android-sdk-platform-tools-common_28.0.2+9_all.deb"
+        ],
+        "sha256": "37ead899618f3f15710e69a1e03c8fe43e6c4590692a2c0a2648b5cc6d18d360",
+        "bytes": 6776
+      }
+    },
+    {
+      "name": "libqt5gui5",
+      "purpose": "Qt5 runtime for the preinstalled QtScrcpy (platform plugins live here)"
+    },
+    {
+      "name": "libqt5widgets5",
+      "purpose": "Qt5 runtime for the preinstalled QtScrcpy"
+    },
+    {
+      "name": "libqt5network5",
+      "purpose": "Qt5 runtime for the preinstalled QtScrcpy"
+    },
+    {
+      "name": "libqt5multimedia5",
+      "purpose": "Qt5 runtime for the preinstalled QtScrcpy audio output"
+    },
+    {
+      "name": "libqt5multimedia5-plugins",
+      "purpose": "Qt5 runtime for the preinstalled QtScrcpy audio output (gstreamer backends)"
+    },
+    {
+      "name": "libqt5x11extras5",
+      "purpose": "Qt5 runtime for the preinstalled QtScrcpy"
+    },
+    {
+      "name": "chromium-common",
+      "version": "156.0.8078.79-1~deb12u1",
+      "arch": "arm64",
+      "purpose": "Chromium 156 V4L2 CAPTURE format fix; paired browser package, validated separately from GPU compositing",
+      "deb": {
+        "url": "https://mirrors.ustc.edu.cn/debian-security/pool/updates/main/c/chromium/chromium-common_156.0.8078.79-1~deb12u1_arm64.deb",
+        "urls": [
+          "https://security.debian.org/debian-security/pool/updates/main/c/chromium/chromium-common_156.0.8078.79-1~deb12u1_arm64.deb"
+        ],
+        "sha256": "853af7690a8ea35a73911c7bf816fe032888099ebb3d6c9ba98e2b94668fa44f",
+        "bytes": 36934836
+      }
+    },
+    {
+      "name": "chromium-sandbox",
+      "version": "156.0.8078.79-1~deb12u1",
+      "arch": "arm64",
+      "purpose": "Chromium 156 V4L2 CAPTURE format fix; paired browser package, validated separately from GPU compositing",
+      "deb": {
+        "url": "https://mirrors.ustc.edu.cn/debian-security/pool/updates/main/c/chromium/chromium-sandbox_156.0.8078.79-1~deb12u1_arm64.deb",
+        "urls": [
+          "https://security.debian.org/debian-security/pool/updates/main/c/chromium/chromium-sandbox_156.0.8078.79-1~deb12u1_arm64.deb"
+        ],
+        "sha256": "0bed7fc607e3fdd94963916502f91324eac161566b4379621e04df27d204ae1a",
+        "bytes": 164532
+      }
+    }
+  ],
+  "sources_extra": [
+    {
+      "name": "docker-ce",
+      "url": "https://mirrors.ustc.edu.cn/docker-ce/linux/debian",
+      "suite": "bookworm",
+      "components": [
+        "stable"
+      ],
+      "keyring_sha256": "1500c1f56fa9e26b9b8f42452a553675796ade0807cdce11975eb98170b3a570"
+    }
+  ]
+}

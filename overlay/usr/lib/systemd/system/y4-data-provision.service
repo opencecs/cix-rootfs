@@ -1,0 +1,20 @@
+[Unit]
+Description=Prepare the Y4 data partition before normal startup
+Documentation=man:mkfs.ext4(8)
+DefaultDependencies=no
+Requires=systemd-remount-fs.service
+After=systemd-remount-fs.service
+Before=sysinit.target
+Conflicts=shutdown.target
+Before=shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/y4-data-provision
+RemainAfterExit=yes
+TimeoutStartSec=10min
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+RequiredBy=sysinit.target

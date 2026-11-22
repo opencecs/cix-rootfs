@@ -1,0 +1,9 @@
+{
+  "HomepageLocation": "https://www.baidu.com/",
+  "HomepageIsNewTabPage": false,
+  "ShowHomeButton": true,
+  "RestoreOnStartup": 4,
+  "RestoreOnStartupURLs": [
+    "https://www.baidu.com/"
+  ]
+}

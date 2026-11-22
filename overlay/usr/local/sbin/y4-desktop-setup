@@ -1,0 +1,55 @@
+#!/bin/sh
+# Y4 desktop setup - runs at every GNOME session start via
+# /etc/xdg/autostart/y4-desktop-setup.desktop (r194).
+#
+# Two jobs, both idempotent and failure-tolerant (a session without a
+# usable bus must not block the login):
+#
+# 1. Enable the desktop-icons-ng shell extension (ding@rastersoft.com)
+#    alongside whatever extensions the vendor default carries. The
+#    setting is appended, never replaced, so vendor changes to the
+#    default list keep working. GNOME shell picks the change up live.
+#
+# 2. Sync the shipped launchers (/usr/share/y4/desktop/*.desktop) into
+#    the XDG desktop directory, mark them executable and set gio metadata::trusted, so
+#    desktop-icons-ng renders normal icons that launch on double-click
+#    instead of the "untrusted launcher" banner.
+
+ICON_SRC=/usr/share/y4/desktop
+if command -v xdg-user-dir >/dev/null 2>&1; then
+    DESKTOP_DIR=$(xdg-user-dir DESKTOP)
+fi
+DESKTOP_DIR=${DESKTOP_DIR:-"${HOME:-/root}/Desktop"}
+DING=ding@rastersoft.com
+
+# 1) enable the desktop icons extension
+if command -v gsettings >/dev/null 2>&1; then
+    cur=$(gsettings get org.gnome.shell enabled-extensions 2>/dev/null) || cur="[]"
+    case "$cur" in
+        *"$DING"*) : ;;
+        *)
+            list=$(printf '%s' "$cur" | sed -e 's/^\[@as //;s/^\[//' -e 's/\]$//' -e 's/^[[:space:]]*//;s/[[:space:]]*$//')
+            if [ -n "$list" ]; then
+                gsettings set org.gnome.shell enabled-extensions "[$list, '$DING']" 2>/dev/null || true
+            else
+                gsettings set org.gnome.shell enabled-extensions "['$DING']" 2>/dev/null || true
+            fi
+            ;;
+    esac
+fi
+
+# 2) install and trust the shipped desktop launchers
+[ -d "$ICON_SRC" ] || exit 0
+mkdir -p "$DESKTOP_DIR" 2>/dev/null || exit 0
+for icon in "$ICON_SRC"/*.desktop; do
+    [ -e "$icon" ] || continue
+    name=$(basename "$icon")
+    target="$DESKTOP_DIR/$name"
+    if ! cmp -s "$icon" "$target" 2>/dev/null; then
+        install -m 0755 "$icon" "$target" 2>/dev/null || continue
+    fi
+    chmod 0755 "$target" 2>/dev/null || true
+    if command -v gio >/dev/null 2>&1; then
+        gio set "$target" metadata::trusted true 2>/dev/null || true
+    fi
+done

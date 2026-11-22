@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "commit": "75af6b681fb3b32b97ed96fb4b21ff468ff238a3",
+  "version": "1.1.7-lan-test",
+  "profile": "nofrp",
+  "arch": "arm64",
+  "bytes": 137298082,
+  "sha256": "5a31748df53b6c36527844d401760f566f97638bf3baced0b57b810b1f4e56ee"
+}

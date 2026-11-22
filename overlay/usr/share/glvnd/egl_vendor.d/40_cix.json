@@ -1,0 +1,6 @@
+{
+    "file_format_version" : "1.0.0",
+    "ICD" : {
+        "library_path" : "/opt/cixgpu-pro/lib/libEGL_cix.so.1"
+    }
+}

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Y4 desktop icons setup
+Comment=Enable desktop-icons-ng and trust the shipped desktop launchers
+Exec=/usr/local/sbin/y4-desktop-setup
+NoDisplay=true
+Terminal=false
+X-GNOME-Autostart-enabled=true

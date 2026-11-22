@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=QtScrcpy
+Comment=Android screen mirroring with Y4 VPU hardware decode
+Exec=/opt/y4-qtscrcpy/QtScrcpy
+Icon=y4-qtscrcpy
+Terminal=false
+Categories=Network;Utility;
+StartupNotify=true

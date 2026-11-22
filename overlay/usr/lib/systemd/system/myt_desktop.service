@@ -1,0 +1,36 @@
+[Unit]
+Description=MYT Desktop panel
+After=network-online.target docker.service
+Wants=network-online.target
+RequiresMountsFor=/var/lib/myt_desktop
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/var/lib/myt_desktop
+Environment=HOME=/var/lib/myt_desktop
+Environment=NASHY_PORT=80
+Environment=NASHY_DB_PATH=/var/lib/myt_desktop/nashy.db
+Environment=NASHY_LOG_DIR=/var/log/myt_desktop
+Environment=NASHY_PREINSTALL_DIR=/var/lib/myt_desktop/preinstall
+Environment=NASHY_Y4_STAGE_DIR=/var/lib/myt_desktop/y4-stage
+Environment=DOCKER_HOST=unix:///run/docker.sock
+Environment=NASHY_SYSTEMD_SERVICE=myt_desktop
+EnvironmentFile=-/etc/default/myt_desktop
+StateDirectory=myt_desktop
+LogsDirectory=myt_desktop
+ExecStartPre=/usr/bin/test -f /run/y4-data-provision/myt-desktop-ready
+ExecStartPre=/usr/bin/install -d -m 0755 /var/lib/myt_desktop/y4-stage /var/lib/myt_desktop/preinstall
+ExecStart=/usr/bin/myt_desktop
+# Highest priority by requirement: the panel must survive memory pressure
+# (the kernel OOM killer never selects oom_score_adj -1000) and run at the
+# top CPU nice level; it restarts unconditionally so the panel self-heals.
+OOMScoreAdjust=-1000
+Nice=-20
+Restart=always
+RestartSec=2
+TimeoutStopSec=20
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

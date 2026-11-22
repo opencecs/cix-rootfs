@@ -1,0 +1,23 @@
+[Unit]
+Description=Clear stale foreign signatures left by an earlier disk layout
+Documentation=man:blkid(8)
+DefaultDependencies=no
+# No After= here: any ordering edge into the udevd/sysusers/remount-fs chain
+# closes a transaction cycle with this unit's Before=systemd-remount-fs and
+# kills udevd for the whole boot (seen on real hardware 2026-11-08). The
+# script uses devtmpfs nodes and tolerates udevadm being unavailable.
+Before=systemd-remount-fs.service
+Conflicts=shutdown.target
+Before=shutdown.target
+OnFailure=emergency.target
+OnFailureJobMode=isolate
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/y4-root-stale-clean
+RemainAfterExit=yes
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+RequiredBy=sysinit.target

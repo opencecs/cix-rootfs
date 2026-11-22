@@ -1,0 +1,8 @@
+[Unit]
+Description=Create missing SSH host keys for this Y4 Debian installation
+Before=ssh.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ssh-keygen -A
+RemainAfterExit=yes

@@ -1,0 +1,22 @@
+# Y4 CIX renderer and V4L2 decoder defaults, shared by all Chromium launchers.
+# Root autologin is the existing product policy; other accounts keep the sandbox.
+CHROMIUM_FLAGS="$CHROMIUM_FLAGS --use-gl=angle --use-angle=gles-egl --ignore-gpu-blocklist --disable-features=Vulkan --use-webgpu-adapter=opengles --enable-features=AcceleratedVideoDecoder"
+if [ "$(id -u)" = 0 ]; then
+    CHROMIUM_FLAGS="$CHROMIUM_FLAGS --no-sandbox"
+fi
+if [ -n "${WAYLAND_DISPLAY:-}" ] || [ "${XDG_SESSION_TYPE:-}" = wayland ]; then
+    # CIX EGL cannot bind the Wayland pixmaps used by browser UI compositing.
+    CHROMIUM_FLAGS="$CHROMIUM_FLAGS --disable-gpu-compositing"
+    if [ "${GTK_IM_MODULE:-}" = fcitx ] && [ -n "${DISPLAY:-}" ]; then
+        # GNOME's XWayland GTK 3 context delivers Fcitx Pinyin to Chromium.
+        CHROMIUM_FLAGS="$CHROMIUM_FLAGS --ozone-platform=x11 --gtk-version=3"
+    else
+        CHROMIUM_FLAGS="$CHROMIUM_FLAGS --ozone-platform=wayland"
+    fi
+fi
+
+# Appliance autologin: user-approved basic storage, without keyring prompts.
+CHROMIUM_FLAGS="$CHROMIUM_FLAGS --password-store=basic"
+
+# Ship the matching chromium-l10n package for the Simplified Chinese UI.
+CHROMIUM_FLAGS="$CHROMIUM_FLAGS --lang=zh-CN"

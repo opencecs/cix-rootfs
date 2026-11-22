@@ -1,0 +1,118 @@
+#!/bin/bash
+# Y4 ffmpeg wrapper (r194) - route video through the VPU by default.
+#
+# The stock Debian ffmpeg carries the full v4l2m2m codec set (verified on
+# Y4: h264_v4l2m2m decodes via /dev/video0 "mvx" and encodes on the VPU),
+# but ffmpeg's own default codec selection never picks them: plain
+# "ffmpeg -i in.mp4" decodes with the native h264 decoder and encodes
+# with libx264, both on the CPU. This wrapper rewrites arguments so the
+# VPU is used unless the caller said otherwise:
+#
+#   - Y4_FFMPEG_SW=1               escape hatch: run /usr/bin/ffmpeg as-is
+#   - explicit codec/hwaccel option (-c, -c:v, -vcodec, -acodec, -scodec,
+#     -dcodec, -hwaccel*)          escape hatch: the caller knows what it
+#                                  wants, pass the command through
+#   - otherwise, before every -i:  inject -c:v <codec>_v4l2m2m, where
+#                                  <codec> is what ffprobe reports for
+#                                  that input's first video stream
+#                                  (h264/hevc/mpeg1/mpeg2/mpeg4/vp8/vp9/
+#                                  vc1/h263); unknown codecs stay native
+#   - and before every output file whose name ends in a known
+#     audio/video container extension (or is "-"): inject
+#     -c:v h264_v4l2m2m as the encoder. Skipped for image outputs
+#     (jpg/png/...) and when -f null or -vn means no video is encoded.
+#
+# Injecting the encoder does not guess a bitrate: pass -b:v explicitly
+# when output size matters (the v4l2m2m encoder defaults to a VPU-chosen
+# rate that is well below libx264's CRF23 quality point).
+#
+# Known limits, accepted on purpose: option values are tracked only for
+# the common value-taking options, so an exotic "-f mp4"-style value
+# could be mistaken for an output file; unusual raw extensions (.264,
+# .nut) simply get no encoder injection. Y4_FFMPEG_SW=1 always returns
+# the exact stock behavior.
+FF=/usr/bin/ffmpeg
+
+# Escape hatch: stock behavior.
+if [ -n "${Y4_FFMPEG_SW:-}" ]; then
+    exec "$FF" "$@"
+fi
+
+# Respect explicit codec/hwaccel choices.
+for a in "$@"; do
+    case "$a" in
+        -c|-c:*|-vcodec|-acodec|-scodec|-dcodec|-hwaccel|-hwaccel_*)
+            exec "$FF" "$@" ;;
+    esac
+done
+
+command -v ffprobe >/dev/null 2>&1 || exec "$FF" "$@"
+
+new=()
+prev=""
+is_input=0
+value_opt=0
+decode_only=0
+for a in "$@"; do
+    if [ "$is_input" = 1 ]; then
+        is_input=0
+        codec=""
+        if [ "$a" != "-" ]; then
+            codec=$(ffprobe -v error -select_streams v:0 \
+                -show_entries stream=codec_name -of default=nw=1:nk=1 \
+                -- "$a" 2>/dev/null | head -n 1)
+        fi
+        case "$codec" in
+            h264)       new+=(-c:v h264_v4l2m2m) ;;
+            hevc|h265)  new+=(-c:v hevc_v4l2m2m) ;;
+            mpeg1video) new+=(-c:v mpeg1_v4l2m2m) ;;
+            mpeg2video) new+=(-c:v mpeg2_v4l2m2m) ;;
+            mpeg4)      new+=(-c:v mpeg4_v4l2m2m) ;;
+            vp8)        new+=(-c:v vp8_v4l2m2m) ;;
+            vp9)        new+=(-c:v vp9_v4l2m2m) ;;
+            vc1)        new+=(-c:v vc1_v4l2m2m) ;;
+            h263)       new+=(-c:v h263_v4l2m2m) ;;
+        esac
+        new+=(-i)
+        new+=("$a")
+        prev="$a"
+        continue
+    fi
+
+    if [ "$value_opt" = 1 ]; then
+        # this is the value of the previous option, never an output file
+        value_opt=0
+        if [ "$prev" = "-f" ] && [ "$a" = "null" ]; then
+            decode_only=1
+        fi
+        new+=("$a")
+        prev="$a"
+        continue
+    fi
+
+    case "$a" in
+        -i)        is_input=1; prev="$a"; continue ;;
+        -vn)       decode_only=1 ;;
+        -f)        value_opt=1 ;;
+        -ss|-t|-to|-b|-r|-s|-map|-metadata|-aspect|-pix_fmt|-crf|\
+        -qscale|-qmin|-qmax|-preset|-tune|-threads|-x264opts)
+                   value_opt=1 ;;
+        -b:*|-c:*|-profile:*|-filter:*|-qscale:*)
+                   value_opt=1 ;;
+        -vf|-af)   value_opt=1 ;;
+    esac
+
+    if [ "$decode_only" = 0 ] && [ "$value_opt" = 0 ] && [ "$is_input" = 0 ]; then
+        case "$a" in
+            -|*.mp4|*.mkv|*.webm|*.ts|*.m2ts|*.mov|*.avi|*.flv|*.m4v|\
+            *.mpg|*.mpeg|*.wmv|*.3gp|*.ogv|*.mp3|*.m4a|*.aac|*.opus|\
+            *.ogg|*.wav|*.flac|*.wma)
+                new+=(-c:v h264_v4l2m2m) ;;
+        esac
+    fi
+
+    new+=("$a")
+    prev="$a"
+done
+
+exec "$FF" "${new[@]}"
