@@ -2,6 +2,8 @@
 
 本仓库维护 MYT Edge Y4 和 Y12 共用的 Debian 软件包清单、桌面与输入法设置、系统配置和厂商运行库。公开和内部构建都从同一个 GitHub `main` 固定源码提交。整机构建和板载服务由 [myt-edge](https://github.com/opencecs/myt-edge) 维护，内核、驱动和设备树由 [cix-kernel](https://github.com/opencecs/cix-kernel) 维护。
 
+[支持的硬件](https://github.com/opencecs/myt-edge/blob/main/docs/PLATFORM-OVERVIEW.md)和[整机开发手册](https://github.com/opencecs/myt-edge/blob/main/docs/DEVELOPMENT-HANDOFF.md)说明两种板型的适用场景、各仓库分工和跨仓库验证流程。
+
 ## 正式构建的输入
 
 | 文件或目录 | 用途 |
