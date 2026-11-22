@@ -19,34 +19,17 @@ Y4 和 Y12 从同一份 `main` 构建。此仓库维护两个板型共用的用�
 
 QtScrcpy 使用产品适配版本，通过 `/opt/y4-qtscrcpy/adb` 调用 Debian 的 `/usr/bin/adb`。厂商输入由清单校验来源和摘要。
 
-当前预装面板为 `1.1.7-lan-test`，源码 `75af6b6`，两板共用 ARM64 `nofrp` 产物。组合树从 `scripts/build.json` 的 `inputs.panel_binary` 读取冻结 ELF，按 `fetch/panel.json` 核对并安装到 `/usr/bin/myt_desktop`。版本升级从[面板源码与编译说明](https://gitlab.moyunteng.com/myt-y4-y12/myt-desktop-panel/-/blob/main/README.md)开始。
+当前预装面板为 `1.1.7-lan-test`，源码 `75af6b6`，两板共用 ARM64 `nofrp` 产物。MYT Edge 从 `--panel-binary` 或本地构建配置读取 ARM64 ELF，按 `fetch/panel.json` 核对并安装到 `/usr/bin/myt_desktop`。
 
 ## 构建入口
 
-在组合树 `/Y4/src/y4-combined` 执行以下命令。先检查两板配置，再按实际目标选一个型号。输出目录须单独指定。
+使用 [MYT Edge](https://github.com/opencecs/myt-edge) 的三仓库组装入口，将本仓库与 [cix-kernel](https://github.com/opencecs/cix-kernel) 固定到所需提交。按 `Y4` 或 `Y12` 构建系统，官方面板和 MCU 制品作为外部输入传入。系统构建与 OTA 打包可省略 UEFI SPI BIN。
 
-```sh
-python3 -B scripts/build.py check --board Y4
-python3 -B scripts/build.py check --board Y12
-python3 -B scripts/build.py all --board Y4 --plan
-python3 -B scripts/build.py all --board Y12 --plan
-```
-
-正式构建使用 `all --board <Y4或Y12> --output <本次构建目录>`。加 `--fresh-apt` 会使用独立空 DEB 缓存；`components` 只构建组件。准备工具链、选择构建输入、生成刷机包和系统 OTA 的命令见[双板构建手册](https://gitlab.moyunteng.com/myt-y4-y12/tools/-/blob/main/docs/DUAL-BOARD-BUILD.md)。整机验证边界见[开发交接](https://gitlab.moyunteng.com/myt-y4-y12/tools/-/blob/main/docs/DEVELOPMENT-HANDOFF.md)。
+完整命令、输入示例和签名说明见[双板构建手册](https://github.com/opencecs/myt-edge/blob/main/docs/DUAL-BOARD-BUILD.md)。
 
 ## Mali Vulkan
 
 Y4 和 Y12 共用 CP6187 的 Mali-G720-Immortalis 用户态库。产品 overlay 安装[系统 Vulkan ICD 清单](overlay/usr/share/vulkan/icd.d/mali_icd.aarch64.json)，加载器通过它打开 `/opt/cixgpu-pro/lib/libmali.so.0`。更新 Mali 驱动时应同时核对清单的 `api_version` 与驱动通过 `vk_icdGetInstanceProcAddr` 提供的 `vkEnumerateInstanceVersion`。上板验收时清除驱动选择环境变量，以普通用户验证 GPU 名称、队列提交与缓冲区读回。桌面 EGL 由独立的 GLVND 清单提供。
-
-## 历史预置桌面程序（2026-11-14）
-
-以下记录对应 2026-11-14 的历史程序。当前出厂版本和 SHA256 以 `fetch/panel.json` 为准。
-
-`overlay/usr/bin/myt_desktop` 更新为已上机验证的 ARM64 局域网测试版 `1.1.2-castfix-lan-test`，修复投屏源像素格式变化及编码进程退出后的恢复。按用户确认，本版暂不提供 FRP 公网访问；定制 `myt-desktop-frp` 源码补齐后再恢复该功能，不能将本版视为完整公网功能版。
-
-- 编译源码：[myt-desktop-panel f3a984af12c6](https://gitlab.moyunteng.com/myt-y4-y12/myt-desktop-panel/-/commit/f3a984af12c6a2cc5ac3480b3612b1590d1f8d07)。
-- SHA256：`d9e2c99f2d4fe66d52055bfa1cae46f55f8306cf4bc8bd57b43b23a20e383807`；大小 136511650 字节，权限 `0755`。
-- 原样复用已部署、已验证的程序；[测试与部署记录](https://gitlab.moyunteng.com/myt-y4-y12/myt-desktop-panel/-/blob/414f8ceb13625ffa820098938e61287d1133c722/docs/desktop-cast-recovery.md)。本次只更新预置载荷，没有重新生成固件或 OTA。
 
 ## 常见开发操作
 
@@ -75,7 +58,7 @@ RK182X 的模型、用户态运行库及端点刷写工具由业务容器提供�
 
 RTC 时间保持还需要核查硬件电池及断电后联网校时前的读数，仅修改时区或开启 NTP 不能证明 RTC 备份供电正常。
 
-系统 OTA 包含 rootfs 和匹配内核。DDR、CSU PM 和 UEFI 由各板型全量包的 `images/myt-spi.bin` 通过 USB Fastboot 更新。标准打包和发布台账由 tools 管理。[刷写与 OTA 说明](https://gitlab.moyunteng.com/myt-y4-y12/tools/-/blob/main/docs/BUILD-AND-FLASH-GUIDE.md#4a-完整刷机包)
+系统 OTA 包含 rootfs 和匹配内核。DDR、CSU PM 和 UEFI 由各板型全量包的 `images/myt-spi.bin` 通过 USB Fastboot 更新。标准打包和发布台账由 tools 管理。[刷写与 OTA 说明](https://github.com/opencecs/myt-edge/blob/main/docs/BUILD-AND-FLASH-GUIDE.md#4a-完整刷机包)
 
 ## 国内 Debian 下载源（2026-11-13）
 
