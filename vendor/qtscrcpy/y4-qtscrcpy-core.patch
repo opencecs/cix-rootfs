@@ -1,0 +1,73 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 91988b0..de3c34f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -241,11 +241,13 @@ endif()
+ 
+ # Linux
+ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+-    # include
+-    target_include_directories(${QSC_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/third_party/ffmpeg/include)
++    # Y4: build against the system ffmpeg (Debian bookworm 5.1,
++    # libavcodec 59). The vendored third_party headers are ffmpeg 4.x and
++    # the vendored Linux lib directory ships no arm64 binaries; the
++    # v4l2m2m hardware codecs this build relies on come from the system
++    # ffmpeg. Drop the vendored include/link paths so the default system
++    # search is used.
+     # link
+-    set(FFMPEG_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/third_party/ffmpeg/lib")
+-    target_link_directories(${QSC_PROJECT_NAME} PUBLIC ${FFMPEG_LIB_PATH})
+     target_link_libraries(${QSC_PROJECT_NAME} PRIVATE
+         # ffmpeg
+         avformat
+diff --git a/src/device/decoder/decoder.cpp b/src/device/decoder/decoder.cpp
+index fe678b2..f6b67ac 100644
+--- a/src/device/decoder/decoder.cpp
++++ b/src/device/decoder/decoder.cpp
+@@ -22,7 +22,19 @@ Decoder::~Decoder() {
+ bool Decoder::open()
+ {
+     // codec
+-    const AVCodec* codec = avcodec_find_decoder(AV_CODEC_ID_H264);
++    // Y4: prefer the VPU decoder (h264_v4l2m2m from the system ffmpeg);
++    // fall back to software decoding when it is absent, cannot open (no
++    // V4L2 device or the device is busy), or when QTSCRCPY_SW_DECODE is
++    // set. The mvx V4L2 driver delivers planar YUV420P capture buffers
++    // (verified on the Y4 board: "requesting formats: output=H264
++    // capture=YU12"), so the renderer contract is unchanged.
++    const AVCodec* codec = Q_NULLPTR;
++    if (qEnvironmentVariableIsEmpty("QTSCRCPY_SW_DECODE")) {
++        codec = avcodec_find_decoder_by_name("h264_v4l2m2m");
++    }
++    if (!codec) {
++        codec = avcodec_find_decoder(AV_CODEC_ID_H264);
++    }
+     if (!codec) {
+         qCritical("H.264 decoder not found");
+         return false;
+@@ -34,7 +46,24 @@ bool Decoder::open()
+         qCritical("Could not allocate decoder context");
+         return false;
+     }
+-    if (avcodec_open2(m_codecCtx, codec, NULL) < 0) {
++    int ret = avcodec_open2(m_codecCtx, codec, NULL);
++    if (ret < 0 && codec->id != AV_CODEC_ID_H264) {
++        qWarning("Could not open the %s VPU decoder (error %d), falling back to software decoding",
++                 codec->name, ret);
++        avcodec_free_context(&m_codecCtx);
++        m_codecCtx = Q_NULLPTR;
++        codec = avcodec_find_decoder(AV_CODEC_ID_H264);
++        if (!codec) {
++            return false;
++        }
++        m_codecCtx = avcodec_alloc_context3(codec);
++        if (!m_codecCtx) {
++            qCritical("Could not allocate decoder context");
++            return false;
++        }
++        ret = avcodec_open2(m_codecCtx, codec, NULL);
++    }
++    if (ret < 0) {
+         qCritical("Could not open H.264 codec");
+         return false;
+     }
