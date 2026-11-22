@@ -1,6 +1,6 @@
-# Y4 / Y12 Debian 12 ARM64 根文件系统
+# MYT Edge Debian 12 ARM64 根文件系统
 
-Y4 和 Y12 从同一份 `main` 构建。此仓库维护两个板型共用的用户空间、桌面、输入法、应用配置及厂商库。构建工具在组合树按 `--board Y4` 或 `--board Y12` 选择内核、DTB、MCU 载荷和板载服务。宿主预置 RK182X 驱动，外接卡的模型、用户态运行库和端点升级工具由业务容器提供。
+Y4 和 Y12 从同一个 GitHub `main` 构建。此仓库维护两个板型共用的用户空间、桌面、输入法、应用配置及厂商库。[myt-edge](https://github.com/opencecs/myt-edge) 按 `--board Y4` 或 `--board Y12` 选择内核、DTB、MCU 载荷和板载服务。宿主预置 RK182X 驱动，外接卡的模型、用户态运行库和端点升级工具由业务容器提供。
 
 旧基础包与 r298 的软件包数量、已裁掉的旧内核、可选精简项及依赖影响见 [r298 软件盘点](docs/rootfs-size-r298.md)。
 
@@ -33,11 +33,9 @@ Y4 和 Y12 共用 CP6187 的 Mali-G720-Immortalis 用户态库。产品 overlay 
 
 ## 常见开发操作
 
-1. 在 main 上 fetch/pull，并检查工作区是否已有其他人的改动。
-2. 修改对应 overlay 文件；更新 myt_desktop 时核对 ARM64 架构、版本、SHA256、可执行权限与服务配置。本仓库不包含该应用源代码工程。
-3. 用明确路径暂存、检查 diff，记录改动和验证后推送 main。管理面板程序存入构建服务器的冻结输入目录，Git 提交对应清单。
-4. 将已确认的 base.json、fetch/、overlay/、vendor/ 改动同步到组合树 rootfs/ 下相同位置。overlay 是多来源合并目录，禁止全目录 --delete。
-5. 从组合树运行 tools 的完整构建。改 apt 清单后首次构建加 --fresh-apt；新 vendor 文件还要确认构建脚本实际安装它。
+1. 获取 GitHub `main`，核对工作区已有改动。
+2. 修改软件包清单或 overlay 内的文件。更新面板时核对 ARM64 架构、版本、执行权限和服务配置，并用生成的 `panel.json` 固定二进制的摘要。独立项目维护面板源码。
+3. 提交已验证的文件。从 MYT Edge 固定三个 GitHub 源码提交并重新组装，构建所需板型。修改 APT 依赖后用 `--fresh-apt` 验证空缓存。新增厂商文件时核对实际安装路径。
 
 ### 从空目录制作系统
 
@@ -58,7 +56,7 @@ RK182X 的模型、用户态运行库及端点刷写工具由业务容器提供�
 
 RTC 时间保持还需要核查硬件电池及断电后联网校时前的读数，仅修改时区或开启 NTP 不能证明 RTC 备份供电正常。
 
-系统 OTA 包含 rootfs 和匹配内核。DDR、CSU PM 和 UEFI 由各板型全量包的 `images/myt-spi.bin` 通过 USB Fastboot 更新。标准打包和发布台账由 tools 管理。[刷写与 OTA 说明](https://github.com/opencecs/myt-edge/blob/main/docs/BUILD-AND-FLASH-GUIDE.md#4a-完整刷机包)
+系统 OTA 包含 rootfs 和匹配内核。DDR、CSU PM 和 UEFI 由各板型全量包的 `images/myt-spi.bin` 通过 USB Fastboot 更新。标准打包流程由 [myt-edge](https://github.com/opencecs/myt-edge) 维护。[刷写与 OTA 说明](https://github.com/opencecs/myt-edge/blob/main/docs/BUILD-AND-FLASH-GUIDE.md#4a-完整刷机包)
 
 ## 国内 Debian 下载源（2026-11-13）
 
@@ -78,4 +76,4 @@ RTC 时间保持还需要核查硬件电池及断电后联网校时前的读数�
 - Deleted accounts revoke panel/terminal/cast/proxy sessions and same-name SMB credentials/connections. Failed SMB cleanup leaves the account disabled and reports an error.
 - User-approved Chromium basic storage avoids keyring prompts; managed policy disables password saving. Existing profile/keyring files are preserved; cookies no longer receive system-keyring protection.
 - Source tests, race checks, frontend build, isolated firmware-Samba integration and isolated ARM64 application smoke passed. No physical-board deployment, firmware/OTA build or flash.
-- Full validation: tools/docs/v11-panel-hardening-20261115.md and .json. Old browser/panel sessions may need to log in again.
+- 此历史版本的完整验证报告保存在迁移前的交付归档。旧浏览器和面板会话可能需要重新登录。
