@@ -6,5 +6,5 @@
   "filesystem": "ext4",
   "kind": "debootstrap",
   "manifest": "fetch/rootfs-packages.json",
-  "sha256": "fb1a8ee663b6bfc05f4c1bbc5445bb2f2a08b4e2d3a0a2cfc5a190ace7d86937"
+  "sha256": "66cc1d6038a02a35ad7736c58949530b6457d207a103cfcad7aea1097e0e63c5"
 }
