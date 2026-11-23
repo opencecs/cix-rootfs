@@ -78,6 +78,11 @@
       "purpose": "desktop icons for the preinstalled apps; enabled per session by /usr/local/sbin/y4-desktop-setup (autostart) alongside the vendor default extensions"
     },
     {
+      "name": "systemd-resolved",
+      "version": "252.39-1~deb12u2",
+      "purpose": "Stable local DNS stub for host-network containers restored after flashing"
+    },
+    {
       "name": "docker-ce",
       "version": "5:27.3.1-1~debian.12~bookworm",
       "purpose": "Container runtime component managed by the shared package lock and USTC Docker CE mirror"

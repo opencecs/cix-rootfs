@@ -13021,6 +13021,16 @@
       "installed_version": "252.39-1~deb12u2",
       "automatic": false
     },
+    "systemd-resolved": {
+      "source": "Debian APT",
+      "arch": "arm64",
+      "version": "252.39-1~deb12u2",
+      "url": "https://mirrors.ustc.edu.cn/debian/pool/main/s/systemd/systemd-resolved_252.39-1~deb12u2_arm64.deb",
+      "sha256": "ba02bffe7dadef3dc68e725a3fea30b6b44529e4a7105f0d94223379d319bf5b",
+      "bytes": 282412,
+      "installed_version": "252.39-1~deb12u2",
+      "automatic": false
+    },
     "systemd-sysv": {
       "source": "Debian APT",
       "arch": "arm64",
