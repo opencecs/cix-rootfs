@@ -1,14 +1,14 @@
 {
   "schema": 1,
   "board": "Y12",
-  "image_sha256": "5016d8b94bc7dcaaaa4e7f66a3a2b55d8a6a8354c13cc5c6eb037d070599abff",
+  "image_sha256": "4e26ebbcf4be5737100897c0f83f0919773670afa6d991dd6602030aacb31d19",
   "dtb_sha256": "99340020dacfd0a6971952294784f68e1e3aab6569713b91182bd61f600ad307",
-  "modules_archive_sha256": "4c26f98ba9a78483ba3fc3e39d81b6a6cf8c36e1075ba48365d07d88e3bf6925",
-  "reason": "Y12 uses the shared Mali GPU and AMVX VPU awake defaults, plus the XH2A probe-time runtime PM default for installed M50 cards.",
+  "modules_archive_sha256": "4d8849eac1f199c3de2cf7ca65f80368e7b5c3f66cd225bb6c5664528b01afe2",
+  "reason": "Y12 uses the shared Mali GPU and AMVX VPU awake defaults, plus the XH2A probe-time runtime PM default for installed M50 cards. The qualified bundle includes the MVX SMPTE 170M encoder color metadata fix.",
   "source": {
-    "repository": "kernel",
-    "base_commit": "8013d6768ab1555b134c79a3754b3bc652e0d1f1",
-    "commit": "8013d6768ab1555b134c79a3754b3bc652e0d1f1",
+    "repository": "opencecs/cix-kernel",
+    "base_commit": "52cdaff596a02d0d3bbbc84c4b16ad66427e3b08",
+    "commit": "52cdaff596a02d0d3bbbc84c4b16ad66427e3b08",
     "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   }
 }
