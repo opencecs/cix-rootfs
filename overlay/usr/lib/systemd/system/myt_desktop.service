@@ -26,6 +26,8 @@ ExecStart=/usr/bin/myt_desktop
 # (the kernel OOM killer never selects oom_score_adj -1000) and run at the
 # top CPU nice level; it restarts unconditionally so the panel self-heals.
 OOMScoreAdjust=-1000
+ManagedOOMPreference=omit
+OOMPolicy=continue
 Nice=-20
 Restart=always
 RestartSec=2
